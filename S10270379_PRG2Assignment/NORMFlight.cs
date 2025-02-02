@@ -11,7 +11,13 @@ using System.Threading.Tasks;
 
 namespace S10270379_PRG2Assignment
 {
-    internal class NORMFlight
+    class NORMFlight : Flight
     {
+        public NORMFlight(string flightNumber, string origin, string destination, DateTime expectedTime) : base(flightNumber, origin, destination, expectedTime, "status") { }
+
+        public override double CalculateFees()
+        {
+            return 300; // Base fee for normal flights
+        }
     }
 }
