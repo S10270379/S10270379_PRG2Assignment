@@ -11,7 +11,18 @@ using System.Threading.Tasks;
 
 namespace S10270379_PRG2Assignment
 {
-    internal class CFFTFlight
+    class CFFTFlight : Flight
     {
+        private double requestFee;
+
+        public CFFTFlight(string flightNumber, string origin, string destination, DateTime expectedTime, double requestFee) : base(flightNumber, origin, destination, expectedTime, "status")
+        {
+            this.requestFee = requestFee;
+        }
+
+        public override double CalculateFees()
+        {
+            return requestFee + 300;
+        }
     }
 }
