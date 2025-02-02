@@ -74,3 +74,58 @@ void loading_BoardingGates(Terminal terminal)
         terminal.AddBoardingGate(Boarding);
     }
 }
+
+void loading_flights(Terminal terminal)
+{
+    Console.WriteLine("Loading Flights...");
+    string[] Flights = File.ReadAllLines("flights.csv");
+    Console.WriteLine(Flights.Skip(1).Count() + " Flights Loaded!");
+
+    for (int i = 1; i < Flights.Length; i++)
+    {
+        int Fee = 0;
+        string[] split_flights = Flights[i].Split(',');
+
+        string FN = split_flights[0];
+        string parts = FN.Split(" ")[0];
+        string Origin = split_flights[1];
+        string Destination = split_flights[2];
+        DateTime EDA = Convert.ToDateTime(split_flights[3]);
+        string SRC = split_flights.Length > 4 ? split_flights[4].Trim() : "";
+        string Status = "Scheduled";
+
+        Flight Flightz;
+
+        if (string.IsNullOrEmpty(SRC))
+        {
+            Flightz = new NORMFlight(FN, Origin, Destination, EDA);
+        }
+        else if (SRC == "DDJB")
+        {
+            Fee = 300;
+            Flightz = new DDJBFlight(FN, Origin, Destination, EDA, Fee);
+        }
+        else if (SRC == "CFFT")
+        {
+            Fee = 150;
+            Flightz = new CFFTFlight(FN, Origin, Destination, EDA, Fee);
+        }
+        else if (SRC == "LWTT")
+        {
+            Fee = 500;
+            Flightz = new LWTTFlight(FN, Origin, Destination, EDA, Fee);
+        }
+        else
+        {
+            Console.WriteLine($"Unknown SRC: {SRC}, skipping flight {FN}");
+            continue;
+        }
+        terminal.Flights[FN] = Flightz;
+        Airline airline = terminal.GetAirlineFromFlight(Flightz);
+        if (airline != null)
+        {
+            // If an airline is found, add the flight to that airline's flights list
+            airline.AddFlight(Flightz);
+        }
+    }
+}
