@@ -139,26 +139,35 @@ void loading_flights(Terminal terminal)
 
 void List_all_flights(Terminal terminal)
 {
+    // Display a header for the flight list of Changi Airport Terminal 5.
     Console.WriteLine(@"=============================================
 List of Flights for Changi Airport Terminal 5
 =============================================");
+
+    // Display the column headers for the flight details.
     Console.WriteLine($"{"Flight Number",-16} {"Airline Name",-21} {"Origin",-21} {"Destination",-21} {"Expected Departure/Arrival Time",-31}");
 
+    // Loop through each flight in the terminal's flights dictionary.
     foreach (var flights in terminal.Flights.Values)
     {
+        // Retrieve the airline associated with the current flight.
         Airline airline = terminal.GetAirlineFromFlight(flights);
         string airlineName;
 
+        // Check if the airline is found, if not, assign "Unknown Airline" to the airline name.
         if (airline != null)
         {
-            airlineName = airline.Name;
+            airlineName = airline.Name; // Get the airline name if available.
         }
         else
         {
-            airlineName = "Unknown Airline";
+            airlineName = "Unknown Airline"; // If no airline is found, set the name as "Unknown Airline".
         }
+
+        // Display the flight information with the flight number, airline name, origin, destination, and expected time.
         Console.WriteLine($"{flights.FlightNumber,-16} {airlineName,-21} {flights.Origin,-21} {flights.Destination,-21} {flights.ExpectedTime,-31}");
     }
+
 }
 
 void List_all_gates(Terminal terminal)
