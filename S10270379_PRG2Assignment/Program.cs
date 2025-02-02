@@ -342,3 +342,215 @@ Assign a Boarding Gate to a Flight
 
     }
 }
+
+void Create_flight(Terminal terminal)
+{
+    while (true)
+    {
+        bool Validate_FN = false;
+        bool Validate_Origin = false;
+        bool Validate_Destin = false;
+        bool Validate_EDA = false;
+        bool Validate_Code = false;
+        bool flight_exist = false;
+
+        string Inputflightnumber = "";
+        string InputOrigin = "";
+        string InputDestination = "";
+        DateTime EDA = DateTime.MinValue;
+        string? specialcode = null;
+
+
+        // Validate Flight Number
+        while (!Validate_FN)
+        {
+            try
+            {
+                Console.Write("Enter Flight Number: ");
+                Inputflightnumber = Console.ReadLine().ToUpper();
+
+                string[] parts = Inputflightnumber.Split(' ');
+
+                if (terminal.Flights.ContainsKey(Inputflightnumber))
+                {
+                    Console.WriteLine("Flight number exist already! Please try again.");
+
+                }
+                else
+                {
+                    foreach (var Airline in terminal.Airlines.Values)
+                    {
+                        if (parts[0].Contains(Airline.Code) && Inputflightnumber.Count(char.IsDigit) == 3)
+                        {
+                            Validate_FN = true;
+                            break;
+                        }
+                    }
+
+                    if (!Validate_FN)
+                    {
+                        Console.WriteLine("Invalid Flight Number! Please try again.");
+                    }
+                }
+
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+
+        // Validate Origin
+        while (!Validate_Origin)
+        {
+            try
+            {
+                Console.Write("Enter Origin: ");
+                InputOrigin = Console.ReadLine();
+
+                foreach (var flight in terminal.Flights.Values)
+                {
+                    if (InputOrigin == flight.Origin || InputOrigin == flight.Destination)
+                    {
+                        Validate_Origin = true;
+                        break;
+                    }
+                }
+
+                if (!Validate_Origin)
+                {
+                    Console.WriteLine("Invalid Origin! Please try again.");
+                }
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        // Validate Destination
+        while (!Validate_Destin)
+        {
+            try
+            {
+                Console.Write("Enter Destination: ");
+                InputDestination = Console.ReadLine();
+
+                foreach (var flight in terminal.Flights.Values)
+                {
+                    if (InputDestination == flight.Destination || InputDestination == flight.Origin)
+                    {
+                        Validate_Destin = true;
+                        break;
+                    }
+                }
+
+                if (!Validate_Destin)
+                {
+                    Console.WriteLine("Invalid Destination! Please try again.");
+                }
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        // Validate Expected Departure/Arrival Time
+        while (!Validate_EDA)
+        {
+            try
+            {
+                Console.Write("Enter Expected Departure/Arrival Time (dd/mm/yyyy hh:mm): ");
+                string edaInput = Console.ReadLine();
+                if (DateTime.TryParse(edaInput, out EDA))
+                {
+                    Validate_EDA = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Date/Time format! Please try again.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        // Validate Special Request Code
+        while (!Validate_Code)
+        {
+            try
+            {
+                Console.Write("Enter Special Request Code (CFFT/DDJB/LWTT/None): ");
+                specialcode = Console.ReadLine().ToUpper();
+
+                if (specialcode == "CFFT" || specialcode == "DDJB" || specialcode == "LWTT" || specialcode == "NONE")
+                {
+                    Validate_Code = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Special Request Code! Please try again.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        Flight? newFlight = null;
+        string outputspecialcode = "";
+        if (specialcode == "NONE")
+        {
+            newFlight = new NORMFlight(Inputflightnumber, InputOrigin, InputDestination, EDA);
+        }
+        else if (specialcode == "DDJB")
+        {
+            newFlight = new DDJBFlight(Inputflightnumber, InputOrigin, InputDestination, EDA, 300);
+            outputspecialcode = specialcode;
+        }
+        else if (specialcode == "CFFT")
+        {
+            newFlight = new CFFTFlight(Inputflightnumber, InputOrigin, InputDestination, EDA, 150);
+            outputspecialcode = specialcode;
+        }
+        else if (specialcode == "LWTT")
+        {
+            newFlight = new LWTTFlight(Inputflightnumber, InputOrigin, InputDestination, EDA, 500);
+            outputspecialcode = specialcode;
+        }
+        if (Validate_FN && Validate_EDA && Validate_Origin && Validate_Destin && Validate_Code)
+        {
+            terminal.Flights.Add(newFlight.FlightNumber, newFlight);
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "flights.csv");
+            string formattedTime = EDA.ToString("h:mm tt"); // Ensure this matches the CSV format
+            string csvLine = $"{Inputflightnumber},{InputOrigin},{InputDestination},{formattedTime},{outputspecialcode}{Environment.NewLine}";
+            File.AppendAllText(filePath, csvLine);
+        }
+
+        Console.WriteLine($"Flight {Inputflightnumber} has been added!");
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine("Would you like to add another flight? (Y/N)");
+                string input_continue = Console.ReadLine().ToUpper();
+                if (input_continue == "Y")
+                    Create_flight(terminal);
+                else if (input_continue == "N")
+                    return;
+                else
+                {
+                    Console.WriteLine("Invalid Input! Please enter 'Y' or 'N' only.");
+                    continue;
+                }
+            }
+            catch { }
+        }
+
+
+    }
+}
