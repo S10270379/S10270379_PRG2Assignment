@@ -129,3 +129,28 @@ void loading_flights(Terminal terminal)
         }
     }
 }
+
+void List_all_flights(Terminal terminal)
+{
+    Console.WriteLine(@"=============================================
+List of Flights for Changi Airport Terminal 5
+=============================================");
+    Console.WriteLine($"{"Flight Number",-16} {"Airline Name",-21} {"Origin",-21} {"Destination",-21} {"Expected Departure/Arrival Time",-31}");
+
+
+    foreach (var flights in terminal.Flights.Values)
+    {
+        Airline airline = terminal.GetAirlineFromFlight(flights);
+        string airlineName;
+
+        if (airline != null)
+        {
+            airlineName = airline.Name;
+        }
+        else
+        {
+            airlineName = "Unknown Airline";
+        }
+        Console.WriteLine($"{flights.FlightNumber,-16} {airlineName,-21} {flights.Origin,-21} {flights.Destination,-21} {flights.ExpectedTime,-31}");
+    }
+}
