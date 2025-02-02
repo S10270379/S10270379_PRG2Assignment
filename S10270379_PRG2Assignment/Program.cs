@@ -1185,6 +1185,66 @@ void ProcessUnassignedFlights(Terminal terminal)
     Console.WriteLine($"Percentage of Boarding Gates processed automatically: {gatePercentage:F2}%");
 }
 
+void DisplayTotalFeePerAirline(Terminal terminal)
+{
+    // Check for unassigned flights (existing code remains)
+    bool allFlightsAssigned = true;
+    foreach (var flight in terminal.Flights.Values)
+    {
+        bool isAssigned = false;
+        foreach (var gate in terminal.BoardingGates.Values)
+        {
+            if (gate.Flight != null && gate.Flight.FlightNumber == flight.FlightNumber)
+            {
+                isAssigned = true;
+                break;
+            }
+        }
+        if (!isAssigned)
+        {
+            Console.WriteLine($"Flight {flight.FlightNumber} does not have a boarding gate assigned.");
+            allFlightsAssigned = false;
+        }
+    }
+
+    if (!allFlightsAssigned)
+    {
+        Console.WriteLine("Please ensure all flights have boarding gates assigned before running this feature.");
+        return;
+    }
+
+    // Display per-airline fees using Terminal's method
+    terminal.PrintAirlineFees();
+
+    // Calculate overall totals
+    double totalSubtotalFees = 0;
+    double totalSubtotalDiscounts = 0;
+    double totalFinalFees = 0;
+
+    foreach (var airline in terminal.Airlines.Values)
+    {
+        var (subtotal, discounts, final) = airline.CalculateFees();
+        totalSubtotalFees += subtotal;
+        totalSubtotalDiscounts += discounts;
+        totalFinalFees += final;
+    }
+
+    // Display totals
+    Console.WriteLine($"Total Subtotal Fees for All Airlines: ${totalSubtotalFees:F2}");
+    Console.WriteLine($"Total Subtotal Discounts for All Airlines: ${totalSubtotalDiscounts:F2}");
+    Console.WriteLine($"Total Final Fees for All Airlines: ${totalFinalFees:F2}");
+
+    if (totalFinalFees != 0)
+    {
+        double discountPercentage = (totalSubtotalDiscounts / totalFinalFees) * 100;
+        Console.WriteLine($"Percentage of Discounts over Final Fees: {discountPercentage:F2}%");
+    }
+    else
+    {
+        Console.WriteLine("Percentage of Discounts: N/A (No fees)");
+    }
+}
+
 void Display_Menu()
 {
     Console.WriteLine();
