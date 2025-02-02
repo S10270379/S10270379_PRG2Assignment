@@ -128,6 +128,7 @@ void loading_flights(Terminal terminal)
             airline.AddFlight(Flightz);
         }
     }
+<<<<<<< HEAD
 }
 
 void List_all_flights(Terminal terminal)
@@ -153,4 +154,6 @@ List of Flights for Changi Airport Terminal 5
         }
         Console.WriteLine($"{flights.FlightNumber,-16} {airlineName,-21} {flights.Origin,-21} {flights.Destination,-21} {flights.ExpectedTime,-31}");
     }
+=======
+>>>>>>> 32accc73d57e8dc0eeb7dd9b091edfade40ec352
 }
