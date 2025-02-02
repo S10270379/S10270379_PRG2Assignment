@@ -1029,3 +1029,39 @@ List of Airlines for Changi Airport Terminal 5
 
 
 }
+
+void Display_Flight_Schedule(Terminal terminal)
+{
+    Console.WriteLine(@"=============================================
+List of Flights for Changi Airport Terminal 5
+=============================================");
+    Console.WriteLine($"{"Flight Number",-16} {"Airline Name",-21} {"Origin",-21} {"Destination",-21} {"Expected Departure/Arrival Time",-35} {"Status",-16} {"Boarding Gate",-13}");
+
+    // Convert the dictionary to a list and sort it based on ExpectedTime
+    List<Flight> sortedFlights = terminal.Flights.Values.ToList();
+    sortedFlights.Sort();
+
+    foreach (var flight in sortedFlights)
+    {
+        string airlineCode = flight.FlightNumber.Split(' ')[0];
+        string flightStatus;
+        if (flight.Status != "status")
+            flightStatus = flight.Status;
+        else
+            flightStatus = "------";
+        Airline airline = terminal.GetAirlineFromFlight(flight);
+        string airlineName = airline != null ? airline.Name : "Unknown Airline";
+
+        string boardingGate = "Unassigned";
+        foreach (var gate in terminal.BoardingGates.Values)
+        {
+            if (gate.Flight != null && gate.Flight.FlightNumber == flight.FlightNumber)
+            {
+                boardingGate = gate.GateName;
+                break;
+            }
+        }
+
+        Console.WriteLine($"{flight.FlightNumber,-16} {airlineName,-21} {flight.Origin,-21} {flight.Destination,-21} {flight.ExpectedTime,-35} {flightStatus,-16} {boardingGate,-13}");
+    }
+}
