@@ -199,38 +199,45 @@ List of Boarding Gates for Changi Airport Terminal 5
 
 void Assign_boardinggate(Terminal terminal)
 {
-    string? Input_flightNumber = null;
-    string? Input_boardingGate = null;
-    Flight? flight = null;
-    bool flightnumberFound = false;
-    bool Validate_InputBoardingGate = false;
+    string? Input_flightNumber = null; // Store the user input for flight number.
+    string? Input_boardingGate = null; // Store the user input for boarding gate.
+    Flight? flight = null; // Initialize flight object.
+    bool flightnumberFound = false; // Flag to check if flight number is found.
+    bool Validate_InputBoardingGate = false; // Flag to check if boarding gate is valid.
 
     Console.WriteLine(@"=============================================
 Assign a Boarding Gate to a Flight
 =============================================");
 
+    // Start a loop to continuously prompt the user until valid inputs are provided.
     while (true)
     {
         try
         {
+            // Ask the user to enter a flight number.
             Console.WriteLine("Enter Flight Number:");
-            Input_flightNumber = Console.ReadLine().ToUpper();
+            Input_flightNumber = Console.ReadLine().ToUpper(); // Read and convert input to uppercase.
 
+            // Check if the entered flight number exists in the terminal's flights collection.
             if (terminal.Flights.ContainsKey(Input_flightNumber))
             {
-                flightnumberFound = true;
+                flightnumberFound = true; // Set the flag to true as the flight is found.
+
                 try
                 {
+                    // Start another loop to prompt for boarding gate until valid input is provided.
                     while (true)
                     {
                         try
                         {
                             Console.WriteLine("Enter Boarding Gate:");
-                            Input_boardingGate = Console.ReadLine().ToUpper();
+                            Input_boardingGate = Console.ReadLine().ToUpper(); // Read and convert boarding gate input to uppercase.
+
+                            // Check if the entered boarding gate exists in the terminal's boarding gates.
                             if (terminal.BoardingGates.ContainsKey(Input_boardingGate))
                                 Validate_InputBoardingGate = true;
 
-                            // Check if boarding gate exists
+                            // If the boarding gate does not exist, prompt for input again.
                             if (!terminal.BoardingGates.ContainsKey(Input_boardingGate))
                             {
                                 Console.WriteLine("Boarding Gate does not exist. Please try again.");
@@ -240,7 +247,7 @@ Assign a Boarding Gate to a Flight
                             {
                                 BoardingGate boardingGate = terminal.BoardingGates[Input_boardingGate];
 
-                                // Check if the gate is already assigned
+                                // If the boarding gate is already assigned to a flight, inform the user and prompt again.
                                 if (boardingGate.Flight != null)
                                 {
                                     Console.WriteLine($"Error: Boarding Gate {Input_boardingGate} is already assigned to Flight {boardingGate.Flight.FlightNumber}.");
@@ -248,29 +255,33 @@ Assign a Boarding Gate to a Flight
                                 }
                                 else
                                 {
-                                    break;
+                                    break; // Break the loop if the boarding gate is available.
                                 }
                             }
                         }
-                        catch { }
+                        catch { } // Catch and ignore any exceptions during boarding gate input.
                     }
 
                 }
                 catch (Exception ex)
                 {
+                    // Catch any exceptions when processing the boarding gate input.
                     Console.WriteLine($"An error occurred while processing the boarding gate input: {ex.Message}");
                 }
 
-
-
+                // Proceed if both flight number and boarding gate are valid.
                 if (Validate_InputBoardingGate == true && flightnumberFound == true)
                 {
+                    // Retrieve the flight from the terminal's flights collection.
                     flight = terminal.Flights[Input_flightNumber];
+
+                    // Display flight information (flight number, origin, destination, expected time).
                     Console.WriteLine($"Flight Number: {flight.FlightNumber}");
                     Console.WriteLine($"Origin: {flight.Origin}");
                     Console.WriteLine($"Destination: {flight.Destination}");
                     Console.WriteLine($"Expected Time: {flight.ExpectedTime}");
 
+                    // Determine the special request code based on the flight type (e.g., DDJB, CFFT, LWTT).
                     string specialcode = "";
                     if (flight is DDJBFlight)
                         specialcode = "DDJB";
@@ -282,21 +293,26 @@ Assign a Boarding Gate to a Flight
                         specialcode = "None";
 
                     Console.WriteLine($"Special Request Code: {specialcode}");
+
+                    // Retrieve the boarding gate and display its details (gate name, supported flight types).
                     BoardingGate boardinggate = terminal.BoardingGates[Input_boardingGate];
                     Console.WriteLine($"Boarding Gate Name: {Input_boardingGate}");
                     Console.WriteLine($"Support DDJB: {boardinggate.SupportDDJB}");
                     Console.WriteLine($"Support CFFT: {boardinggate.SupportCFFT}");
                     Console.WriteLine($"Support LWTT: {boardinggate.SupportLWTT}");
 
-
+                    // Assign the flight to the selected boarding gate.
                     boardinggate.Flight = flight;
+
+                    // Ask if the user wants to update the flight status.
                     while (true)
                     {
                         try
                         {
                             Console.WriteLine("Would you like to update the flight status? (Y/N)");
-                            string updateStatus = Console.ReadLine().ToUpper();
+                            string updateStatus = Console.ReadLine().ToUpper(); // Read user input for status update.
 
+                            // If the user selects "Y", ask for the new status and update it.
                             if (updateStatus == "Y")
                             {
                                 Console.WriteLine("1. Delayed");
@@ -307,15 +323,15 @@ Assign a Boarding Gate to a Flight
 
                                 if (update_option == "1")
                                 {
-                                    flight.Status = "Delayed";
+                                    flight.Status = "Delayed"; // Set status to Delayed.
                                 }
                                 else if (update_option == "2")
                                 {
-                                    flight.Status = "Boarding";
+                                    flight.Status = "Boarding"; // Set status to Boarding.
                                 }
                                 else if (update_option == "3")
                                 {
-                                    flight.Status = "On Time";
+                                    flight.Status = "On Time"; // Set status to On Time.
                                 }
                                 else
                                 {
@@ -323,45 +339,46 @@ Assign a Boarding Gate to a Flight
                                     continue;
                                 }
                                 Console.WriteLine($"Flight {Input_flightNumber} has been assigned to Boarding Gate {Input_boardingGate}!");
-                                return;
+                                return; // Return after successfully assigning the boarding gate and updating the status.
                             }
                             else if (updateStatus == "N")
                             {
                                 Console.WriteLine($"Flight {Input_flightNumber} has been assigned to Boarding Gate {Input_boardingGate}!");
-                                return;
+                                return; // Return if the user does not want to update the status.
                             }
                             else
                             {
-                                Console.WriteLine("Invalid Option! Please try again!");
+                                Console.WriteLine("Invalid Option! Please try again!"); // Handle invalid options.
                             }
                         }
-                        catch { }
+                        catch { } // Catch any exceptions during the flight status update.
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Boarding Gate does not exist. Please try again.");
+                    Console.WriteLine("Boarding Gate does not exist. Please try again."); // Handle invalid boarding gate.
                     continue;
                 }
             }
             else
             {
-                Console.WriteLine("Flight number not found. Please try again.");
+                Console.WriteLine("Flight number not found. Please try again."); // Handle invalid flight number.
                 continue;
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}"); // Handle unexpected errors.
         }
-
     }
 }
 
 void Create_flight(Terminal terminal)
 {
+    // Start an infinite loop for flight creation process
     while (true)
     {
+        // Flags to track the validation status for flight details
         bool Validate_FN = false;
         bool Validate_Origin = false;
         bool Validate_Destin = false;
@@ -369,61 +386,62 @@ void Create_flight(Terminal terminal)
         bool Validate_Code = false;
         bool flight_exist = false;
 
+        // Initialize variables to store user input for flight details
         string Inputflightnumber = "";
         string InputOrigin = "";
         string InputDestination = "";
         DateTime EDA = DateTime.MinValue;
         string? specialcode = null;
 
-
-        // Validate Flight Number
+        // Validate Flight Number input
         while (!Validate_FN)
         {
             try
             {
                 Console.Write("Enter Flight Number: ");
-                Inputflightnumber = Console.ReadLine().ToUpper();
+                Inputflightnumber = Console.ReadLine().ToUpper(); // Read and convert input to uppercase
 
-                string[] parts = Inputflightnumber.Split(' ');
+                string[] parts = Inputflightnumber.Split(' '); // Split flight number for validation
 
+                // Check if flight number already exists in the terminal's flight collection
                 if (terminal.Flights.ContainsKey(Inputflightnumber))
                 {
                     Console.WriteLine("Flight number exist already! Please try again.");
-
                 }
                 else
                 {
+                    // Check if the flight number contains a valid airline code and 3-digit number
                     foreach (var Airline in terminal.Airlines.Values)
                     {
                         if (parts[0].Contains(Airline.Code) && Inputflightnumber.Count(char.IsDigit) == 3)
                         {
-                            Validate_FN = true;
+                            Validate_FN = true; // Mark flight number as valid
                             break;
                         }
                     }
 
+                    // If the flight number isn't valid, prompt user to try again
                     if (!Validate_FN)
                     {
                         Console.WriteLine("Invalid Flight Number! Please try again.");
                     }
                 }
-
             }
             catch (ArgumentNullException ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); // Handle null argument exception
             }
         }
 
-
-        // Validate Origin
+        // Validate Origin input
         while (!Validate_Origin)
         {
             try
             {
                 Console.Write("Enter Origin: ");
-                InputOrigin = Console.ReadLine();
+                InputOrigin = Console.ReadLine(); // Read user input for origin
 
+                // Check if the origin is valid (it should match an existing flight's origin or destination)
                 foreach (var flight in terminal.Flights.Values)
                 {
                     if (InputOrigin == flight.Origin || InputOrigin == flight.Destination)
@@ -433,6 +451,7 @@ void Create_flight(Terminal terminal)
                     }
                 }
 
+                // If origin is invalid, prompt user to try again
                 if (!Validate_Origin)
                 {
                     Console.WriteLine("Invalid Origin! Please try again.");
@@ -440,18 +459,19 @@ void Create_flight(Terminal terminal)
             }
             catch (ArgumentNullException ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); // Handle null argument exception
             }
         }
 
-        // Validate Destination
+        // Validate Destination input
         while (!Validate_Destin)
         {
             try
             {
                 Console.Write("Enter Destination: ");
-                InputDestination = Console.ReadLine();
+                InputDestination = Console.ReadLine(); // Read user input for destination
 
+                // Check if the destination is valid (it should match an existing flight's origin or destination)
                 foreach (var flight in terminal.Flights.Values)
                 {
                     if (InputDestination == flight.Destination || InputDestination == flight.Origin)
@@ -461,6 +481,7 @@ void Create_flight(Terminal terminal)
                     }
                 }
 
+                // If destination is invalid, prompt user to try again
                 if (!Validate_Destin)
                 {
                     Console.WriteLine("Invalid Destination! Please try again.");
@@ -468,20 +489,22 @@ void Create_flight(Terminal terminal)
             }
             catch (ArgumentNullException ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); // Handle null argument exception
             }
         }
 
-        // Validate Expected Departure/Arrival Time
+        // Validate Expected Departure/Arrival Time input
         while (!Validate_EDA)
         {
             try
             {
                 Console.Write("Enter Expected Departure/Arrival Time (dd/mm/yyyy hh:mm): ");
-                string edaInput = Console.ReadLine();
+                string edaInput = Console.ReadLine(); // Read input for date/time
+
+                // Try to parse the input into a valid DateTime
                 if (DateTime.TryParse(edaInput, out EDA))
                 {
-                    Validate_EDA = true;
+                    Validate_EDA = true; // Mark time as valid
                 }
                 else
                 {
@@ -490,21 +513,22 @@ void Create_flight(Terminal terminal)
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); // Handle any unexpected exceptions
             }
         }
 
-        // Validate Special Request Code
+        // Validate Special Request Code input
         while (!Validate_Code)
         {
             try
             {
                 Console.Write("Enter Special Request Code (CFFT/DDJB/LWTT/None): ");
-                specialcode = Console.ReadLine().ToUpper();
+                specialcode = Console.ReadLine().ToUpper(); // Read and convert input to uppercase
 
+                // Check if the special code is valid
                 if (specialcode == "CFFT" || specialcode == "DDJB" || specialcode == "LWTT" || specialcode == "NONE")
                 {
-                    Validate_Code = true;
+                    Validate_Code = true; // Mark special code as valid
                 }
                 else
                 {
@@ -513,9 +537,11 @@ void Create_flight(Terminal terminal)
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); // Handle any exceptions
             }
         }
+
+        // Create the new flight based on user input and special code
         Flight? newFlight = null;
         string outputspecialcode = "";
         if (specialcode == "NONE")
@@ -537,36 +563,42 @@ void Create_flight(Terminal terminal)
             newFlight = new LWTTFlight(Inputflightnumber, InputOrigin, InputDestination, EDA, 500);
             outputspecialcode = specialcode;
         }
+
+        // If all validations are successful, add the new flight to the terminal's flights collection
         if (Validate_FN && Validate_EDA && Validate_Origin && Validate_Destin && Validate_Code)
         {
-            terminal.Flights.Add(newFlight.FlightNumber, newFlight);
+            terminal.Flights.Add(newFlight.FlightNumber, newFlight); // Add the flight to the system
+
+            // Save the new flight details to the "flights.csv" file
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "flights.csv");
-            string formattedTime = EDA.ToString("h:mm tt"); // Ensure this matches the CSV format
+            string formattedTime = EDA.ToString("h:mm tt"); // Format time to match the CSV format
             string csvLine = $"{Inputflightnumber},{InputOrigin},{InputDestination},{formattedTime},{outputspecialcode}{Environment.NewLine}";
-            File.AppendAllText(filePath, csvLine);
+            File.AppendAllText(filePath, csvLine); // Append the new flight details to the CSV
+
+            Console.WriteLine($"Flight {Inputflightnumber} has been added!");
         }
 
-        Console.WriteLine($"Flight {Inputflightnumber} has been added!");
+        // Ask the user if they want to add another flight
         while (true)
         {
             try
             {
                 Console.WriteLine("Would you like to add another flight? (Y/N)");
-                string input_continue = Console.ReadLine().ToUpper();
+                string input_continue = Console.ReadLine().ToUpper(); // Read user's decision
+
+                // Recursively call Create_flight if 'Y' is entered
                 if (input_continue == "Y")
                     Create_flight(terminal);
                 else if (input_continue == "N")
-                    return;
+                    return; // Exit the method if 'N' is entered
                 else
                 {
                     Console.WriteLine("Invalid Input! Please enter 'Y' or 'N' only.");
-                    continue;
+                    continue; // Prompt again for valid input
                 }
             }
             catch { }
         }
-
-
     }
 }
 
@@ -658,12 +690,15 @@ List of Flights for {airline.Name}
 
                         }
                     }
-                    catch { }
+                    catch (Exception ex) 
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
 
             }
         }
-        catch (ArgumentNullException ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
