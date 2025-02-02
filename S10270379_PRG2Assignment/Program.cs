@@ -259,7 +259,7 @@ Assign a Boarding Gate to a Flight
                                 }
                             }
                         }
-                        catch { } // Catch and ignore any exceptions during boarding gate input.
+                        catch (Exception ex) { Console.WriteLine(ex); } // Catch and ignore any exceptions during boarding gate input.
                     }
 
                 }
@@ -351,7 +351,7 @@ Assign a Boarding Gate to a Flight
                                 Console.WriteLine("Invalid Option! Please try again!"); // Handle invalid options.
                             }
                         }
-                        catch { } // Catch any exceptions during the flight status update.
+                        catch (Exception ex) { Console.WriteLine(ex); } // Catch any exceptions during the flight status update.
                     }
                 }
                 else
@@ -427,7 +427,7 @@ void Create_flight(Terminal terminal)
                     }
                 }
             }
-            catch (ArgumentNullException ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex); // Handle null argument exception
             }
@@ -457,7 +457,7 @@ void Create_flight(Terminal terminal)
                     Console.WriteLine("Invalid Origin! Please try again.");
                 }
             }
-            catch (ArgumentNullException ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex); // Handle null argument exception
             }
@@ -487,7 +487,7 @@ void Create_flight(Terminal terminal)
                     Console.WriteLine("Invalid Destination! Please try again.");
                 }
             }
-            catch (ArgumentNullException ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex); // Handle null argument exception
             }
@@ -825,7 +825,7 @@ List of Airlines for Changi Airport Terminal 5
                                                                 Console.WriteLine("Invalid Origin! Please try again.");
                                                             }
                                                         }
-                                                        catch (ArgumentNullException ex)
+                                                        catch (Exception ex)
                                                         {
                                                             Console.WriteLine(ex);
                                                         }
@@ -855,7 +855,7 @@ List of Airlines for Changi Airport Terminal 5
                                                                 Console.WriteLine("Invalid Destination! Please try again.");
                                                             }
                                                         }
-                                                        catch (ArgumentNullException ex)
+                                                        catch (Exception ex)
                                                         {
                                                             Console.WriteLine(ex.Message);
                                                         }
@@ -1025,7 +1025,7 @@ List of Airlines for Changi Airport Terminal 5
                                                         }
 
                                                     }
-                                                    catch { }
+                                                    catch (Exception ex) { Console.WriteLine(ex); }
                                                 }
                                             }
                                             else
@@ -1055,7 +1055,7 @@ List of Airlines for Changi Airport Terminal 5
                                             continue;
                                         }
                                     }
-                                    catch { }
+                                    catch (Exception ex) { Console.WriteLine(ex); }
                                 }
                             }
                         }
@@ -1065,12 +1065,12 @@ List of Airlines for Changi Airport Terminal 5
                             continue;
                         }
                     }
-                    catch { }
+                    catch (Exception ex) { Console.WriteLine(ex); }
                 }
             }
 
         }
-        catch (ArgumentNullException ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
