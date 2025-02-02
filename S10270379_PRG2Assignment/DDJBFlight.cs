@@ -11,7 +11,23 @@ using System.Threading.Tasks;
 
 namespace S10270379_PRG2Assignment
 {
-    internal class DDJBFlight
+    class DDJBFlight : Flight
     {
+        private double requestFee;
+        public double RequestFee
+        {
+            get { return requestFee; }
+            set { requestFee = value; }
+        }
+
+        public DDJBFlight(string flightNumber, string origin, string destination, DateTime expectedTime, double requestFee) : base(flightNumber, origin, destination, expectedTime, "status")
+        {
+            RequestFee = requestFee;
+        }
+
+        public override double CalculateFees()
+        {
+            return requestFee + 300; // Additional fee for DDJB flights
+        }
     }
 }
