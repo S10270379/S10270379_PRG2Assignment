@@ -77,57 +77,64 @@ void loading_BoardingGates(Terminal terminal)
 
 void loading_flights(Terminal terminal)
 {
-    Console.WriteLine("Loading Flights...");
-    string[] Flights = File.ReadAllLines("flights.csv");
-    Console.WriteLine(Flights.Skip(1).Count() + " Flights Loaded!");
+    Console.WriteLine("Loading Flights..."); // Display message indicating flight data is being loaded.
 
-    for (int i = 1; i < Flights.Length; i++)
+    string[] Flights = File.ReadAllLines("flights.csv"); // Read all lines from the CSV file into an array.
+
+    Console.WriteLine(Flights.Skip(1).Count() + " Flights Loaded!"); // Display the number of flights loaded, excluding the header.
+
+    for (int i = 1; i < Flights.Length; i++) // Loop through each flight record, starting from index 1 (skipping the header).
     {
-        int Fee = 0;
-        string[] split_flights = Flights[i].Split(',');
+        int Fee = 0; // Initialize fee variable.
+        string[] split_flights = Flights[i].Split(','); // Split the CSV line into individual flight details.
 
-        string FN = split_flights[0];
-        string parts = FN.Split(" ")[0];
-        string Origin = split_flights[1];
-        string Destination = split_flights[2];
-        DateTime EDA = Convert.ToDateTime(split_flights[3]);
-        string SRC = split_flights.Length > 4 ? split_flights[4].Trim() : "";
-        string Status = "Scheduled";
+        string FN = split_flights[0]; // Flight number.
+        string parts = FN.Split(" ")[0]; // Extract first part of flight number (though this variable is unused).
+        string Origin = split_flights[1]; // Flight origin.
+        string Destination = split_flights[2]; // Flight destination.
+        DateTime EDA = Convert.ToDateTime(split_flights[3]); // Expected departure date, converted from string to DateTime.
+        string SRC = split_flights.Length > 4 ? split_flights[4].Trim() : ""; // Extract source type if available, otherwise set to an empty string.
+        string Status = "Scheduled"; // Default flight status.
 
-        Flight Flightz;
+        Flight Flightz; // Declare flight object.
 
+        // Determine flight type based on SRC value
         if (string.IsNullOrEmpty(SRC))
         {
-            Flightz = new NORMFlight(FN, Origin, Destination, EDA);
+            Flightz = new NORMFlight(FN, Origin, Destination, EDA); // Create a normal flight if no special category is provided.
         }
         else if (SRC == "DDJB")
         {
-            Fee = 300;
-            Flightz = new DDJBFlight(FN, Origin, Destination, EDA, Fee);
+            Fee = 300; // Set fee for DDJB flights.
+            Flightz = new DDJBFlight(FN, Origin, Destination, EDA, Fee); // Create a DDJB flight.
         }
         else if (SRC == "CFFT")
         {
-            Fee = 150;
-            Flightz = new CFFTFlight(FN, Origin, Destination, EDA, Fee);
+            Fee = 150; // Set fee for CFFT flights.
+            Flightz = new CFFTFlight(FN, Origin, Destination, EDA, Fee); // Create a CFFT flight.
         }
         else if (SRC == "LWTT")
         {
-            Fee = 500;
-            Flightz = new LWTTFlight(FN, Origin, Destination, EDA, Fee);
+            Fee = 500; // Set fee for LWTT flights.
+            Flightz = new LWTTFlight(FN, Origin, Destination, EDA, Fee); // Create a LWTT flight.
         }
         else
         {
-            Console.WriteLine($"Unknown SRC: {SRC}, skipping flight {FN}");
-            continue;
+            Console.WriteLine($"Unknown SRC: {SRC}, skipping flight {FN}"); // Handle unknown flight types by skipping them.
+            continue; // Skip to the next iteration of the loop.
         }
-        terminal.Flights[FN] = Flightz;
-        Airline airline = terminal.GetAirlineFromFlight(Flightz);
+
+        terminal.Flights[FN] = Flightz; // Add the flight to the terminal's flight dictionary.
+
+        Airline airline = terminal.GetAirlineFromFlight(Flightz); // Retrieve the airline associated with this flight.
+
         if (airline != null)
         {
-            // If an airline is found, add the flight to that airline's flights list
+            // If an airline is found, add the flight to that airline's flight list.
             airline.AddFlight(Flightz);
         }
     }
+
 }
 
 void List_all_flights(Terminal terminal)
@@ -136,7 +143,6 @@ void List_all_flights(Terminal terminal)
 List of Flights for Changi Airport Terminal 5
 =============================================");
     Console.WriteLine($"{"Flight Number",-16} {"Airline Name",-21} {"Origin",-21} {"Destination",-21} {"Expected Departure/Arrival Time",-31}");
-
 
     foreach (var flights in terminal.Flights.Values)
     {
