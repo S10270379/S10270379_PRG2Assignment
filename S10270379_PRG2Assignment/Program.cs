@@ -1065,3 +1065,182 @@ List of Flights for Changi Airport Terminal 5
         Console.WriteLine($"{flight.FlightNumber,-16} {airlineName,-21} {flight.Origin,-21} {flight.Destination,-21} {flight.ExpectedTime,-35} {flightStatus,-16} {boardingGate,-13}");
     }
 }
+
+void ProcessUnassignedFlights(Terminal terminal)
+{
+    // Step 1: Create a queue for unassigned flights
+    Queue<Flight> unassignedFlights = new Queue<Flight>();
+
+    // Step 2: Check for unassigned flights and boarding gates
+    int unassignedFlightCount = 0;
+    int unassignedBoardingGateCount = 0;
+
+    foreach (var flight in terminal.Flights.Values)
+    {
+        bool isAssigned = false;
+        foreach (var gate in terminal.BoardingGates.Values)
+        {
+            if (gate.Flight != null && gate.Flight.FlightNumber == flight.FlightNumber)
+            {
+                isAssigned = true;
+                break;
+            }
+        }
+        if (!isAssigned)
+        {
+            unassignedFlights.Enqueue(flight);
+            unassignedFlightCount++;
+        }
+    }
+
+    foreach (var gate in terminal.BoardingGates.Values)
+    {
+        if (gate.Flight == null)
+        {
+            unassignedBoardingGateCount++;
+        }
+    }
+
+    Console.WriteLine($"Total number of Flights without a Boarding Gate assigned: {unassignedFlightCount}");
+    Console.WriteLine($"Total number of Boarding Gates without a Flight assigned: {unassignedBoardingGateCount}");
+
+    // Step 3: Assign boarding gates to flights
+    int processedFlights = 0;
+    int processedGates = 0;
+
+    while (unassignedFlights.Count > 0)
+    {
+        Flight currentFlight = unassignedFlights.Dequeue();
+        BoardingGate assignedGate = null;
+
+        // Check if the flight has a special request code
+        string specialCode = "";
+        if (currentFlight is DDJBFlight)
+            specialCode = "DDJB";
+        else if (currentFlight is CFFTFlight)
+            specialCode = "CFFT";
+        else if (currentFlight is LWTTFlight)
+            specialCode = "LWTT";
+
+        // Find an unassigned boarding gate that matches the special request code
+        foreach (var gate in terminal.BoardingGates.Values)
+        {
+            if (gate.Flight == null)
+            {
+                if (!string.IsNullOrEmpty(specialCode))
+                {
+                    // Check if the gate supports the special request code
+                    if ((specialCode == "DDJB" && (gate.GateName.StartsWith("A10") || gate.GateName.StartsWith("A11") || gate.GateName.StartsWith("A12") ||
+                                                   gate.GateName.StartsWith("A13") || gate.GateName.StartsWith("A20") || gate.GateName.StartsWith("A21") ||
+                                                   gate.GateName.StartsWith("A22") || gate.GateName.StartsWith("B10") || gate.GateName.StartsWith("B11") ||
+                                                   gate.GateName.StartsWith("B12"))) ||
+                        (specialCode == "CFFT" && (gate.GateName.StartsWith("B1") || gate.GateName.StartsWith("B2") || gate.GateName.StartsWith("B3") ||
+                                                   gate.GateName.StartsWith("C"))) ||
+                        (specialCode == "LWTT" && (gate.GateName.StartsWith("A1") || gate.GateName.StartsWith("A2") || gate.GateName.StartsWith("A20") ||
+                                                   gate.GateName.StartsWith("A21") || gate.GateName.StartsWith("A22") || gate.GateName.StartsWith("C14") ||
+                                                   gate.GateName.StartsWith("C15") || gate.GateName.StartsWith("C16") || gate.GateName.StartsWith("B"))))
+                    {
+                        assignedGate = gate;
+                        break;
+                    }
+                }
+                else
+                {
+                    // If no special request code, assign any unassigned gate
+                    assignedGate = gate;
+                    break;
+                }
+            }
+        }
+
+        if (assignedGate != null)
+        {
+            assignedGate.Flight = currentFlight;
+            processedFlights++;
+            processedGates++;
+
+            // Display the flight details
+            Console.WriteLine($"Flight Number: {currentFlight.FlightNumber}");
+            Console.WriteLine($"Airline Name: {terminal.GetAirlineFromFlight(currentFlight)?.Name ?? "Unknown"}");
+            Console.WriteLine($"Origin: {currentFlight.Origin}");
+            Console.WriteLine($"Destination: {currentFlight.Destination}");
+            Console.WriteLine($"Expected Departure/Arrival Time: {currentFlight.ExpectedTime}");
+            Console.WriteLine($"Special Request Code: {specialCode}");
+            Console.WriteLine($"Boarding Gate: {assignedGate.GateName}");
+            Console.WriteLine("----------------------------------------");
+        }
+    }
+
+    // Step 4: Display the results
+    Console.WriteLine($"Total number of Flights processed and assigned: {processedFlights}");
+    Console.WriteLine($"Total number of Boarding Gates processed and assigned: {processedGates}");
+
+    int totalFlights = terminal.Flights.Count;
+    int totalGates = terminal.BoardingGates.Count;
+
+    double flightPercentage = (double)processedFlights / totalFlights * 100;
+    double gatePercentage = (double)processedGates / totalGates * 100;
+
+    Console.WriteLine($"Percentage of Flights processed automatically: {flightPercentage:F2}%");
+    Console.WriteLine($"Percentage of Boarding Gates processed automatically: {gatePercentage:F2}%");
+}
+
+void Display_Menu()
+{
+    Console.WriteLine();
+    Console.WriteLine(@"=============================================
+Welcome to Changi Airport Terminal 5
+=============================================
+1. List All Flights
+2. List Boarding Gates
+3. Assign a Boarding Gate to a Flight
+4. Create Flight
+5. Display Airline Flights
+6. Modify Flight Details
+7. Display Flight Schedule
+8. Process All Unassign Flights
+9. Display Total Fees per Airline
+0. Exit
+
+Please select your option:");
+}
+Terminal terminal = new Terminal("Terminal 5");
+loading_Airlines(terminal);
+loading_BoardingGates(terminal);
+loading_flights(terminal);
+
+while (true)
+{
+    int? option = null;
+    try
+    {
+        Display_Menu();
+        option = Convert.ToInt32(Console.ReadLine());
+        if (option == 1)
+            List_all_flights(terminal);
+        else if (option == 2)
+            List_all_gates(terminal);
+        else if (option == 3)
+            Assign_boardinggate(terminal);
+        else if (option == 4)
+            Create_flight(terminal);
+        else if (option == 5)
+            Display_Airline_Flights(terminal);
+        else if (option == 6)
+            Modify_Flight_Details(terminal);
+        else if (option == 7)
+            Display_Flight_Schedule(terminal);
+        else if (option == 8)
+            ProcessUnassignedFlights(terminal);
+        else if (option == 9)
+            DisplayTotalFeePerAirline(terminal);
+        else if (option == 0)
+            break;
+        else
+            Console.WriteLine("Invalid option! Please try again.");
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+    }
+}
